@@ -1,0 +1,40 @@
+{
+  "name": "clean-browser",
+  "version": "1.0.0",
+  "description": "A modern, clean web browser built with Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --debug",
+    "build": "electron-builder",
+    "dist": "electron-builder --win"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^25.3.1",
+    "electron-builder": "^24.6.3"
+  },
+  "dependencies": {
+    "@electron/remote": "^2.0.10",
+    "electron-store": "^8.2.0"
+  },
+  "build": {
+    "appId": "com.cleanbrowser.app",
+    "productName": "Clean Browser",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}

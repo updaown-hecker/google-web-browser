@@ -1,0 +1,276 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: #ffffff;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.titlebar {
+  height: 32px;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  -webkit-app-region: drag;
+}
+
+.titlebar-buttons {
+  display: flex;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar button {
+  width: 46px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.titlebar button:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#close:hover {
+  background: #e81123;
+  color: white;
+}
+
+.browser-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs-bar {
+  height: 36px;
+  background: #f5f5f5;
+  display: flex;
+  padding: 0 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tabs-list {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs-list::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  min-width: 180px;
+  max-width: 240px;
+  height: 32px;
+  margin: 4px 4px 0;
+  padding: 0 16px;
+  background: #e8e8e8;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #ffffff;
+}
+
+.tab-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.tab-close {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+.tab-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.new-tab-button {
+  width: 28px;
+  height: 28px;
+  margin: 4px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.new-tab-button:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.navigation-bar {
+  height: 40px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.nav-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-controls button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.nav-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nav-controls button:not(:disabled):hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.address-bar {
+  flex: 1;
+  margin: 0 8px;
+}
+
+#urlInput {
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#urlInput:focus {
+  border-color: #1a73e8;
+}
+
+.browser-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.browser-actions button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.browser-actions button:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.webview-container {
+  flex: 1;
+  background: #ffffff;
+}
+
+webview {
+  width: 100%;
+  height: 100%;
+}
+
+.bookmarks-bar {
+  height: 32px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-bottom: 1px solid #e0e0e0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bookmarks-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.bookmark-item {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-right: 4px;
+}
+
+.bookmark-item:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.bookmark-item img {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
+
+.bookmark-item span {
+  font-size: 12px;
+  color: #333;
+}
+
+.browser-menu,
+.context-menu {
+  position: fixed;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  min-width: 200px;
+  z-index: 1000;
+}
+
+.menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.menu-item:hover {
+  background: #f5f5f5;
+}
+
+.menu-item.delete:hover {
+  background: #ffebee;
+  color: #d32f2f;
+}

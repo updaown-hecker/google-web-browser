@@ -1,0 +1,29 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directory
+node_modules/
+
+# Built output (if you have any build process)
+# dist/
+# build/
+# out/
+
+# Temporary files and directories
+tmp/
+temp/
+.tmp/
+
+# Editor and IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+.DS_Store
+Thumbs.db
