@@ -5,6 +5,8 @@ let TabManager;
 // Avoid circular dependency by getting TabManager after module initialization
 require('./renderer.js').then(module => {
   TabManager = module.TabManager;
+}).catch(error => {
+  console.error('Error loading TabManager:', error);
 });
 
 class BookmarkManager {
@@ -20,7 +22,6 @@ class BookmarkManager {
   static init() {
     return BookmarkManager.getInstance();
   }
-
 
   constructor() {
     this.store = new Store();
@@ -49,7 +50,7 @@ class BookmarkManager {
 
   setupEventListeners() {
     document.getElementById('bookmarkButton').addEventListener('click', () => {
-      if (TabManager.activeTab) {
+      if (TabManager && TabManager.activeTab) {
         const url = TabManager.activeTab.url;
         const title = TabManager.activeTab.title;
         const favicon = TabManager.activeTab.webview.getFavicon();
@@ -130,18 +131,8 @@ class BookmarkManager {
       bookmarksBar.appendChild(bookmarkElement);
     });
   }
-}
 
-}
-
-const bookmarkManager = new BookmarkManager();
-
-module.exports = {
-  BookmarkManager,
-  bookmarkManager
-};
-
-function showMenu(event) {
+  showMenu(event) {
     const menu = document.createElement('div');
     menu.id = 'browserMenu';
     menu.className = 'browser-menu';
@@ -190,9 +181,7 @@ function showMenu(event) {
     }, { once: true });
   }
 
-}
-
-function showBookmarkContextMenu(event, bookmark) {
+  showBookmarkContextMenu(event, bookmark) {
     const menu = document.createElement('div');
     menu.className = 'context-menu';
     menu.innerHTML = `
@@ -202,7 +191,9 @@ function showBookmarkContextMenu(event, bookmark) {
     `;
 
     menu.querySelector('.menu-item:first-child').addEventListener('click', () => {
-      TabManager.createTab(bookmark.url);
+      if (TabManager) {
+        TabManager.createTab(bookmark.url);
+      }
       menu.remove();
     });
 
@@ -228,13 +219,12 @@ function showBookmarkContextMenu(event, bookmark) {
     this.store.set('bookmarksBarVisible', this.bookmarksBarVisible);
     this.renderBookmarks();
   }
-
-  showMenu = showMenu;
-  showBookmarkContextMenu = showBookmarkContextMenu;
-}
-
-module.exports = { BookmarkManager };
 }
 
 // Initialize bookmark manager
-window.bookmarkManager = BookmarkManager.getInstance();
+const bookmarkManager = BookmarkManager.getInstance();
+
+module.exports = {
+  BookmarkManager,
+  bookmarkManager
+};
