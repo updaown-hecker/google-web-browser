@@ -66,15 +66,19 @@ class BrowserTab {
         this.id = Math.random().toString(36).substr(2, 9);
         this.url = url;
         this.title = 'New Tab';
+        this.favicon = '';
         this.element = this.createTabElement();
         this.webview = this.createWebview();
         this.setupEventListeners();
+        this.setupDragAndDrop();
     }
 
     createTabElement() {
         const tab = document.createElement('div');
         tab.className = 'tab';
+        tab.setAttribute('draggable', 'true');
         tab.innerHTML = `
+            <img class="tab-favicon" src="${this.favicon || 'assets/Blinx.ico'}" alt="">
             <span class="tab-title">${this.title}</span>
             <div class="tab-close">×</div>
         `;
@@ -112,6 +116,15 @@ class BrowserTab {
     }
 
     setupEventListeners() {
+        this.webview.addEventListener('page-favicon-updated', (e) => {
+            if (e.favicons && e.favicons.length > 0) {
+                this.favicon = e.favicons[0];
+                const faviconElement = this.element.querySelector('.tab-favicon');
+                if (faviconElement) {
+                    faviconElement.src = this.favicon;
+                }
+            }
+        });
         this.element.addEventListener('click', (e) => {
             if (!e.target.matches('.tab-close')) {
                 TabManager.setActiveTab(this);
@@ -157,6 +170,44 @@ class BrowserTab {
     updateNavigationButtons() {
         document.getElementById('backButton').disabled = !this.webview.canGoBack();
         document.getElementById('forwardButton').disabled = !this.webview.canGoForward();
+    }
+
+    setupDragAndDrop() {
+        this.element.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', this.id);
+            this.element.classList.add('dragging');
+        });
+
+        this.element.addEventListener('dragend', () => {
+            this.element.classList.remove('dragging');
+        });
+
+        this.element.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const draggingTab = document.querySelector('.tab.dragging');
+            if (draggingTab && draggingTab !== this.element) {
+                const tabsList = document.getElementById('tabsList');
+                const afterElement = this.getDragAfterElement(tabsList, e.clientX);
+                if (afterElement) {
+                    tabsList.insertBefore(draggingTab, afterElement);
+                } else {
+                    tabsList.appendChild(draggingTab);
+                }
+            }
+        });
+    }
+
+    getDragAfterElement(container, x) {
+        const draggableElements = [...container.querySelectorAll('.tab:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = x - box.left - box.width / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 }
 
