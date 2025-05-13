@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blinx Settings</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .settings-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .settings-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+
+        .setting-item {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .setting-item label {
+            flex: 0 0 200px;
+            font-weight: 500;
+        }
+
+        .setting-item input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .setting-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            background: #1557b0;
+        }
+
+        h3 {
+            margin: 0 0 20px 0;
+            color: #202124;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <h2>Blinx Settings</h2>
+        <div id="settingsContainer"></div>
+    </div>
+    <script src="settings.js"></script>
+    <script>
+        const settingsManager = new SettingsManager();
+        settingsManager.loadSettings().then(() => {
+            settingsManager.initializeSettings();
+            settingsManager.renderSettingsUI();
+        });
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, protocol } = require('electron');
 const path = require('path');
 const Store = require('electron-store');
 require('@electron/remote/main').initialize();
@@ -14,10 +14,13 @@ function createWindow() {
       contextIsolation: false,
       enableRemoteModule: true,
       webviewTag: true,
-      webSecurity: true
+      webSecurity: true,
+      webviewTag: true,
+      allowDisplayingInsecureContent: true
     },
     frame: false,
-    titleBarStyle: 'hidden'
+    titleBarStyle: 'hidden',
+    icon: path.join(__dirname, 'assets', 'Blinx.ico')
   });
 
   mainWindow.loadFile('index.html');
@@ -28,6 +31,31 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Register blinx:// protocol
+  protocol.registerStringProtocol('blinx', (request, callback) => {
+    const url = new URL(request.url);
+    const pathname = url.pathname.substring(2); // Remove leading //
+    
+    if (pathname === 'settings') {
+      const settingsPath = path.join(__dirname, 'settings.html');
+      const fs = require('fs');
+      try {
+        const content = fs.readFileSync(settingsPath, 'utf8');
+        callback({
+          data: content,
+          mimeType: 'text/html',
+          charset: 'utf-8'
+        });
+      } catch (err) {
+        console.error('Error loading settings:', err);
+        callback({ error: -2 });
+      }
+    } else {
+      console.warn('Invalid blinx:// URL:', pathname);
+      callback({ error: -2 })
+    }
+  });
+
   createWindow();
 
   app.on('activate', function () {

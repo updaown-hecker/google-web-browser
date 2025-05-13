@@ -1,13 +1,13 @@
 const { ipcRenderer } = require('electron');
-const Store = require('electron-store');
-let TabManager;
+const fs = require('fs');
+const path = require('path');
 
-// Avoid circular dependency by getting TabManager after module initialization
-require('./renderer.js').then(module => {
-  TabManager = module.TabManager;
-}).catch(error => {
-  console.error('Error loading TabManager:', error);
-});
+let TabManager = null;
+
+// Export a function to set TabManager from renderer.js
+function setTabManager(manager) {
+  TabManager = manager;
+}
 
 class BookmarkManager {
   static instance = null;
@@ -24,9 +24,9 @@ class BookmarkManager {
   }
 
   constructor() {
-    this.store = new Store();
-    this.bookmarks = this.store.get('bookmarks', []);
-    this.bookmarksBarVisible = this.store.get('bookmarksBarVisible', true);
+    this.bookmarksPath = path.join(__dirname, 'user-settings', 'bookmarks.json');
+    this.bookmarks = this.loadBookmarks();
+    this.bookmarksBarVisible = true;
     
     // Ensure DOM is loaded before setting up UI
     if (document.readyState === 'loading') {
@@ -68,6 +68,26 @@ class BookmarkManager {
     });
   }
 
+  loadBookmarks() {
+    try {
+      if (fs.existsSync(this.bookmarksPath)) {
+        const data = fs.readFileSync(this.bookmarksPath, 'utf8');
+        return JSON.parse(data).bookmarks || [];
+      }
+    } catch (error) {
+      console.error('Error loading bookmarks:', error);
+    }
+    return [];
+  }
+
+  saveBookmarks() {
+    try {
+      fs.writeFileSync(this.bookmarksPath, JSON.stringify({ bookmarks: this.bookmarks }, null, 2));
+    } catch (error) {
+      console.error('Error saving bookmarks:', error);
+    }
+  }
+
   toggleBookmark(url, title, favicon) {
     const existingBookmark = this.bookmarks.find(b => b.url === url);
     const bookmarkButton = document.getElementById('bookmarkButton');
@@ -91,14 +111,14 @@ class BookmarkManager {
     };
 
     this.bookmarks.push(bookmark);
-    this.store.set('bookmarks', this.bookmarks);
+    this.saveBookmarks();
     this.renderBookmarks();
     return bookmark;
   }
 
   removeBookmark(id) {
     this.bookmarks = this.bookmarks.filter(b => b.id !== id);
-    this.store.set('bookmarks', this.bookmarks);
+    this.saveBookmarks();
     this.renderBookmarks();
   }
 

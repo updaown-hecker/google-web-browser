@@ -1,0 +1,7 @@
+{
+  "homepage": "https://www.google.com",
+  "searchEngine": "https://www.google.com/search?q=",
+  "enableNotifications": true,
+  "darkMode": false,
+  "downloadPath": ""
+}

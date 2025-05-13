@@ -1,25 +1,56 @@
 const { ipcRenderer } = require('electron');
-const Store = require('electron-store');
+const fs = require('fs');
+const path = require('path');
+const { app } = require('electron').remote;
 
 class SettingsManager {
   constructor() {
-    this.store = new Store();
+    this.settingsPath = path.join(__dirname, 'user-settings', 'settings.json');
     this.defaultSettings = {
       homepage: 'https://www.google.com',
       searchEngine: 'https://www.google.com/search?q=',
       enableNotifications: true,
       darkMode: false,
-      downloadPath: this.store.get('downloadPath') || require('electron').app.getPath('downloads')
+      downloadPath: app.getPath('downloads')
     };
-    this.settings = this.store.get('settings', this.defaultSettings);
-    this.initializeSettings();
+    this.ensureSettingsDirectory();
+    this.settings = this.defaultSettings;
   }
 
-  initializeSettings() {
-    if (!this.store.has('settings')) {
-      this.store.set('settings', this.defaultSettings);
+  ensureSettingsDirectory() {
+    const dir = path.dirname(this.settingsPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
-    this.applyTheme();
+  }
+
+  async loadSettings() {
+    try {
+      if (fs.existsSync(this.settingsPath)) {
+        const data = await fs.promises.readFile(this.settingsPath, 'utf8');
+        this.settings = JSON.parse(data);
+      } else {
+        this.settings = this.defaultSettings;
+        await this.saveSettings(this.defaultSettings);
+      }
+      return this.settings;
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      this.settings = this.defaultSettings;
+      return this.defaultSettings;
+    }
+  }
+
+  async initializeSettings() {
+    try {
+      if (!fs.existsSync(this.settingsPath)) {
+        await this.saveSettings(this.defaultSettings);
+      }
+      this.applyTheme();
+    } catch (error) {
+      console.error('Error initializing settings:', error);
+      throw error;
+    }
   }
 
   getSetting(key) {
@@ -28,10 +59,19 @@ class SettingsManager {
 
   setSetting(key, value) {
     this.settings[key] = value;
-    this.store.set('settings', this.settings);
+    this.saveSettings(this.settings);
     
     if (key === 'darkMode') {
       this.applyTheme();
+    }
+  }
+
+  async saveSettings(settings) {
+    try {
+      await fs.promises.writeFile(this.settingsPath, JSON.stringify(settings, null, 2));
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      throw error;
     }
   }
 
