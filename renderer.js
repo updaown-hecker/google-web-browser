@@ -51,13 +51,9 @@ class BrowserTab {
                 url = 'https://www.google.com';
             }
             if (url.startsWith('blinx://')) {
-                const path = url.substr(8);
-                if (path === 'settings') {
-                    url = 'blinx://settings';
-                } else {
-                    this.title = 'Invalid blinx:// URL';
-                    url = 'about:blank';
-                }
+                // Allow any blinx:// URL to load directly without validation
+                this.title = url.substr(8);
+                url = url;
             }
         } catch (error) {
             console.error('Error in BrowserTab constructor:', error);
@@ -102,8 +98,12 @@ class BrowserTab {
             container.appendChild(webview);
 
             webview.addEventListener('did-fail-load', (e) => {
-                if (e.errorCode === -2 && e.validatedURL.startsWith('blinx://')) {
-                    this.title = 'Invalid blinx:// URL';
+                // Skip error handling for blinx:// URLs
+                if (e.validatedURL.startsWith('blinx://')) {
+                    return;
+                }
+                if (e.errorCode === -2) {
+                    this.title = 'Error loading page';
                     this.element.querySelector('.tab-title').textContent = this.title;
                 }
             });

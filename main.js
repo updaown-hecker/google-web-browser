@@ -37,27 +37,23 @@ function createWindow() {
 
 app.whenReady().then(() => {
   // Register blinx:// protocol
-  protocol.registerStringProtocol('blinx', (request, callback) => {
-    const url = new URL(request.url);
-    const pathname = url.pathname.substring(2); // Remove leading //
-    
-    if (pathname === 'settings') {
-      const settingsPath = path.join(__dirname, 'settings.html');
-      const fs = require('fs');
-      try {
-        const content = fs.readFileSync(settingsPath, 'utf8');
+  protocol.registerFileProtocol('blinx', (request, callback) => {
+    try {
+      const url = new URL(request.url);
+      const pathname = url.pathname.substring(2); // Remove leading //
+      
+      if (pathname === 'settings') {
         callback({
-          data: content,
-          mimeType: 'text/html',
-          charset: 'utf-8'
+          path: path.join(__dirname, 'settings.html')
         });
-      } catch (err) {
-        console.error('Error loading settings:', err);
+      } else {
+        // Handle other internal pages here
+        console.warn('Unhandled blinx:// URL:', pathname);
         callback({ error: -2 });
       }
-    } else {
-      console.warn('Invalid blinx:// URL:', pathname);
-      callback({ error: -2 })
+    } catch (err) {
+      console.error('Error handling blinx:// protocol:', err);
+      callback({ error: -2 });
     }
   });
 
