@@ -163,35 +163,57 @@ class BrowserTab {
 // Initialize managers after DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    // Initialize settings first and ensure they're loaded
-    const settingsManager = new SettingsManager();
-    await settingsManager.initializeSettings();
-
-    // Initialize other managers after settings are ready
-    const downloadManager = new DownloadManager();
-    const bookmarkManager = BookmarkManager.init();
-    
-    // Set TabManager reference in BookmarkManager
-    bookmarkManager.setTabManager(TabManager);
-    
-    // Ensure required DOM elements exist
+    // Ensure required DOM elements exist first
     const tabsList = document.getElementById('tabsList');
     const webviewContainer = document.getElementById('webviewContainer');
     
     if (!tabsList || !webviewContainer) {
       throw new Error('Required DOM elements not found');
     }
-    
+
     // Create initial tab with default homepage
     TabManager.createTab('https://www.google.com');
+
+    // Dynamically load and initialize manager modules
+    try {
+      // Load settings manager
+      const settingsModule = await import('./settings.js');
+      const settingsManager = new settingsModule.SettingsManager();
+      await settingsManager.initializeSettings();
+
+      // Load download manager
+      const downloadModule = await import('./downloads.js');
+      const downloadManager = new downloadModule.DownloadManager();
+
+      // Load bookmark manager
+      const bookmarkModule = await import('./bookmarks.js');
+      const bookmarkManager = bookmarkModule.BookmarkManager.init();
+      bookmarkManager.setTabManager(TabManager);
+
+      console.log('All managers loaded successfully');
+    } catch (moduleError) {
+      console.error('Error loading manager modules:', moduleError);
+    }
   } catch (error) {
     console.error('Error initializing browser:', error);
-    // Create a default tab if initialization fails
     TabManager.createTab('https://www.google.com');
   }
 });
 
-// Window control buttons
+const { ipcRenderer } = require('electron');
+const ModuleLoader = require('./loader');
+
+// Initialize module loader
+let moduleLoader = null;
+
+// Listen for module initialization signal from main process
+ipcRenderer.on('initialize-modules', async () => {
+  console.log('🚀 Renderer process loaded, initializing modules...');
+  moduleLoader = new ModuleLoader();
+  await moduleLoader.initializeModules();
+});
+
+// Handle window controls
 document.getElementById('minimize').addEventListener('click', () => {
   ipcRenderer.send('minimize-window');
 });

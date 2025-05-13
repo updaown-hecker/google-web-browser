@@ -190,9 +190,64 @@ body {
   height: 32px;
   border: none;
   background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.bookmarks-bar {
+  height: 32px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-bottom: 1px solid #e0e0e0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bookmarks-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.bookmark-item {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 24px;
+  margin-right: 8px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.bookmark-item:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.bookmark-item img {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
+
+.browser-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: #f5f5f5;
 }
 
 .browser-actions button:hover {

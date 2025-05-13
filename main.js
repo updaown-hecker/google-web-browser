@@ -25,6 +25,11 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
 
+  // Wait for renderer.js to load before initializing modules
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.send('initialize-modules');
+  });
+
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
   }
@@ -68,6 +73,10 @@ app.on('window-all-closed', function () {
 });
 
 // Handle IPC messages
+ipcMain.on('modules-loaded', () => {
+  console.log('✅ All modules loaded successfully');
+});
+
 ipcMain.on('minimize-window', () => {
   const win = BrowserWindow.getFocusedWindow();
   win.minimize();
