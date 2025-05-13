@@ -188,6 +188,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Load bookmark manager
       const bookmarkModule = await import('./bookmarks.js');
       const bookmarkManager = bookmarkModule.BookmarkManager.init();
+      
+      // Set up bookmark button functionality
+      const bookmarkButton = document.getElementById('bookmarkButton');
+      if (bookmarkButton) {
+        bookmarkButton.addEventListener('click', () => {
+          if (TabManager.activeTab) {
+            const url = TabManager.activeTab.webview.getURL();
+            const title = TabManager.activeTab.title;
+            const favicon = TabManager.activeTab.webview.getFavicon();
+            const existingBookmark = bookmarkManager.bookmarks.find(b => b.url === url);
+            if (existingBookmark) {
+              bookmarkManager.removeBookmark(existingBookmark.id);
+              bookmarkButton.textContent = '☆';
+            } else {
+              const bookmarkDialog = new (require('./bookmark-dialog'))();
+              bookmarkDialog.show(url, title, favicon);
+              bookmarkButton.textContent = '★';
+            }
+          }
+        });
+      }
+      
+      // Initialize TabManager for bookmarks
       bookmarkManager.setTabManager(TabManager);
 
       console.log('All managers loaded successfully');

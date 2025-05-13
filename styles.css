@@ -329,3 +329,4 @@ webview {
   background: #ffebee;
   color: #d32f2f;
 }
+@import url('./styles/bookmark-dialog.css');

@@ -9,6 +9,8 @@ function setTabManager(manager) {
   TabManager = manager;
 }
 
+const BookmarkDialog = require('./bookmark-dialog');
+
 class BookmarkManager {
   static instance = null;
 
@@ -27,6 +29,8 @@ class BookmarkManager {
     this.bookmarksPath = path.join(__dirname, 'user-settings', 'bookmarks.json');
     this.bookmarks = this.loadBookmarks();
     this.bookmarksBarVisible = true;
+    this.bookmarkDialog = new BookmarkDialog();
+    window.bookmarkManager = this;
     
     // Ensure DOM is loaded before setting up UI
     if (document.readyState === 'loading') {
@@ -96,17 +100,18 @@ class BookmarkManager {
       this.removeBookmark(existingBookmark.id);
       if (bookmarkButton) bookmarkButton.textContent = '☆';
     } else {
-      this.addBookmark(url, title, favicon);
+      this.bookmarkDialog.show(url, title, favicon);
       if (bookmarkButton) bookmarkButton.textContent = '★';
     }
   }
 
-  addBookmark(url, title, favicon) {
+  addBookmark(url, title, favicon, folderId = 'root') {
     const bookmark = {
       id: Math.random().toString(36).substr(2, 9),
       url,
       title,
       favicon,
+      folderId,
       dateAdded: new Date().toISOString()
     };
 
@@ -122,12 +127,19 @@ class BookmarkManager {
     this.renderBookmarks();
   }
 
+  getFolders() {
+    return this.bookmarks.filter(b => b.type === 'folder');
+  }
+
   renderBookmarks() {
     const bookmarksBar = document.getElementById('bookmarksBar');
     if (!bookmarksBar) return;
 
     bookmarksBar.innerHTML = '';
     bookmarksBar.style.display = this.bookmarksBarVisible ? 'flex' : 'none';
+    
+    // Only render bookmarks in the root folder
+    const rootBookmarks = this.bookmarks.filter(b => b.folderId === 'root');
     
     this.bookmarks.forEach(bookmark => {
       const bookmarkElement = document.createElement('div');
@@ -162,15 +174,24 @@ class BookmarkManager {
         label: 'Toggle Bookmarks Bar',
         action: () => {
           this.bookmarksBarVisible = !this.bookmarksBarVisible;
-          this.store.set('bookmarksBarVisible', this.bookmarksBarVisible);
           this.renderBookmarks();
+          // Save the visibility state to settings
+          const settingsPath = path.join(__dirname, 'user-settings', 'settings.json');
+          try {
+            const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+            settings.bookmarksBarVisible = this.bookmarksBarVisible;
+            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+          } catch (error) {
+            console.error('Error saving bookmarks bar state:', error);
+          }
         }
       },
       {
         label: 'Settings',
         action: () => {
-          // TODO: Implement settings page
-          console.log('Settings clicked');
+          if (TabManager && TabManager.activeTab) {
+            TabManager.createTab('blinx://settings');
+          }
         }
       }
     ];

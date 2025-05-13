@@ -3,5 +3,6 @@
   "searchEngine": "https://www.google.com/search?q=",
   "enableNotifications": true,
   "darkMode": false,
-  "downloadPath": ""
+  "downloadPath": "",
+  "bookmarksBarVisible": true
 }
