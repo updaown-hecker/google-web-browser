@@ -13,7 +13,6 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      webviewTag: true,
       webSecurity: true,
       webviewTag: true,
       allowDisplayingInsecureContent: true

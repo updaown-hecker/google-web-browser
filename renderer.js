@@ -163,7 +163,10 @@ class BrowserTab {
 
         this.webview.addEventListener('new-window', (e) => {
             e.preventDefault();
-            TabManager.createTab(e.url);
+            const tab = TabManager.createTab(e.url);
+            
+            // Always force new content into tabs, regardless of target or disposition
+            TabManager.setActiveTab(tab);
         });
     }
 
